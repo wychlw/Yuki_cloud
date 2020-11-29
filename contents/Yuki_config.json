@@ -1,0 +1,24 @@
+
+{
+    "file_num":3,
+    "file":[
+        {
+            "name":"test1.txt",
+            "type":"file",
+            "last_modification_time":"0",
+            "access":["all"]
+        },
+        {
+            "name":"test2.md",
+            "type":"file",
+            "last_modification_time":"1",
+            "access":["password","EKbmzIMRo+K8wJv2wZmt7NXdWUCMND6SaxKcSRTzywE="]
+        },
+        {
+            "name":"test3",
+            "type":"folder",
+            "last_modification_time":"2",
+            "access":["user","admin"]
+        }
+    ]
+}
