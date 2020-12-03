@@ -5,7 +5,7 @@
             "name":"contents",
             "type":"folder",
             "last_modification_time":"0",
-            "access":["all"]
+            "access":{}
         }
     ]
 }

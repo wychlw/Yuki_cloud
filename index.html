@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+
+<body>
+
+    <header id="vue_header" class="container">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#/">Yuki cloud</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#/">ROOT MENU</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/wychlw/Yuki_cloud">ABOUT</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+    </header>
+
+    <main id="vue_main" class="container">
+
+        <header>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <template v-for="i in path">
+                        <template v-if="i.path != path[(path.length-1)].path">
+                            <li class="breadcrumb-item" :key="i.name">
+                                <a :href="i.path">
+                                    {{i.name}}
+                                </a>
+                            </li>
+                        </template>
+                        <template v-else>
+                            <li class="breadcrumb-item active" :key="i.name">
+                                {{i.name}}
+                            </li>
+                        </template>
+                    </template>
+                </ol>
+            </nav>
+        </header>
+    </main>
+
+    <script>
+
+        data = {};
+
+        data.vue = {};
+
+        data.vue.header = new Vue({
+            el: "#vue_header",
+            data: {}
+        });
+
+        data.vue.main = new Vue({
+            el: "#vue_main",
+            data: {
+                path:[
+                    { name: "/", path: "/" },
+                    { name: "test1", path: "/test1" },
+                    { name: "test2", path: "/test1/test2" }
+                ]
+            }
+        })
+
+    </script>
+</body>
+
+</html>

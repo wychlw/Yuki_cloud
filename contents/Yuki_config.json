@@ -6,19 +6,23 @@
             "name":"test1.txt",
             "type":"file",
             "last_modification_time":"0",
-            "access":["all"]
+            "access":{}
         },
         {
             "name":"test2.md",
             "type":"file",
             "last_modification_time":"1",
-            "access":["password","EKbmzIMRo+K8wJv2wZmt7NXdWUCMND6SaxKcSRTzywE="]
+            "access":{
+                "password":"EKbmzIMRo+K8wJv2wZmt7NXdWUCMND6SaxKcSRTzywE="
+            }
         },
         {
             "name":"test3",
             "type":"folder",
             "last_modification_time":"2",
-            "access":["user","admin"]
+            "access":{
+                "user":["admin"]
+            }
         }
     ]
 }
