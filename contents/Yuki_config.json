@@ -1,6 +1,6 @@
 
 {
-    "file_num":3,
+    "file_num":4,
     "file":[
         {
             "name":"test1.txt",
@@ -22,6 +22,15 @@
             "last_modification_time":"2",
             "access":{
                 "user":["admin"]
+            }
+        },
+        {
+            "name":"test4.php",
+            "type":"file",
+            "last_modification_time":"3",
+            "access":{
+                "user":["test_user1","test_user2"],
+                "password":"EKbmzIMRo+K8wJv2wZmt7NXdWUCMND6SaxKcSRTzywE="
             }
         }
     ]

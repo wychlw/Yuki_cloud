@@ -8,31 +8,37 @@ const read_file = {
 
     check_auth(user_auth, file_auth) {
         return new Promise(function (resolve, reject) {
-            switch (file_auth[0]) {
-                case 'all':
-                    resolve([200, 'success!']);
 
-                case 'password':
-                    if (!user_auth.password) reject([403, 'maybe a password,please?']);
+            var ret = [403, { 'wrong_password': false, 'invalid_user': false }, ""];
+
+            if (file_auth.password) {
+                if (user_auth.password) {
                     let hash = crypto.createHash('sha256');
                     let input_pass_hash = hash.update(user_auth.password).digest().toString('base64');
-                    if (input_pass_hash == file_auth[1]) resolve([200, 'success!']);
-                    reject([403, 'wrong password! do you know the password?']);
+                    if (input_pass_hash == file_auth.password) resolve([200, 'success!']);
+                }
 
-                case 'user':
-                    if (!user_auth.user) reject([500, 'no user auth_data']);
+                ret[1].wrong_password = true;
+                ret[2] += " Wrong password!";
+            }
 
-
-                    for (var j of file_auth) {
-                        console.log(j);
-                        if (user_auth.user == j && j != 'user') resolve([200, 'success!']);
+            if (file_auth.user) {
+                if (user_auth.user) {
+                    for (var j of file_auth.user) {
+                        if (user_auth.user == j) resolve([200, 'success!']);
 
                     }
-                    reject([403, 'no authority']);
+                }
 
-                default:
-                    reject([500, 'I don\'t know what happened, but something must be wrong', user_auth, file_auth]);
+                ret[1].invalid_user = true;
+                ret[2] += "  Invalid user!";
             }
+
+            if ((!file_auth.password) && (!file_auth.user)) {
+                resolve([200, 'success!']);
+            }
+
+            reject(ret);
         });
     },
 
