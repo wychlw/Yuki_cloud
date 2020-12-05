@@ -17,7 +17,12 @@ var db = new sqlite3.Database('database.sqlite3', function (e) {
     }
 });
 */
-//end init
+
+/**
+ * don't know why sqlite3 can not use
+ *so share func is not avaliable now
+ *end init
+  */
 
 /**
  * /#/* is for build single_page application
