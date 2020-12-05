@@ -156,6 +156,13 @@
             );
         }
 
+	function hash_change(){
+		let url=window.location.href;
+		var path = url.split('#')[1];
+		load_main(url);
+
+	}
+
         _global = {};
 
         _global.vue = {};
@@ -172,7 +179,9 @@
             }
         });
 
-        load_main();
+        hash_change();
+
+	window.onhashchange = hash_change;
 
     </script>
 </body>
