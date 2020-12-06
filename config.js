@@ -1,7 +1,7 @@
 //config file
 const config = {
-    'port': 8081,
-    'url': '127.0.0.1',
+    'port': 8080,
+    'url': '0.0.0.0',
     'salt': 'Replace it with something random'
 }
 

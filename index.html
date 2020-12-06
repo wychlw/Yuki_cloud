@@ -159,7 +159,7 @@
 	function hash_change(){
 		let url=window.location.href;
 		var path = url.split('#')[1];
-		load_main(url);
+		load_main(path);
 
 	}
 
@@ -180,6 +180,7 @@
         });
 
         hash_change();
+	//load_main();
 
 	window.onhashchange = hash_change;
 

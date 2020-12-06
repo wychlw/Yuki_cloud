@@ -80,13 +80,17 @@ app.get('/', (req, res) => {
             res.send(data);
         }, reason => {
             console.log(reason);
-            res.status(500);
-            res.send("Internal server error!");
+            res.status(500).send("Internal server error!");
         }
     );
 });
 
-app.listen(config.port, () => {
+app.get('*',(req,res)=>{
+	console.log('404 query\n'+req.path);
+	res.status(404).send();
+});
+
+app.listen(config.port,config.url, () => {
     console.log('listen on:');
     console.log(config);
 })
