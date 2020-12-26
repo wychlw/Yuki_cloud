@@ -89,7 +89,8 @@
         <template v-if="folder_data">
             <template v-for="i in folder_data.file">
                 <div class="row mx-lg-4">
-                    <div class="col-6 py-3 px-lg-5 border bg-light">
+                    <a class="col-6 py-3 px-lg-5 border bg-light" :href="i.path"
+                        :onclick="return access_next_layer(i);">
                         <template v-if="i.type == 'folder'">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-folder2" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +107,7 @@
                             </svg>
                         </template>
                         {{i.name}}
-                    </div>
+                    </a>
                     <div class="col-2 py-3 px-lg-5 border bg-light">
                         {{i.type}}
                     </div>
@@ -128,7 +129,11 @@
             if (!path || path == '') {
                 path = '/';
             }
-            $.getJSON('/f' + path).then(
+            $.getJSON('/f' + path, {
+                'user':
+                    (gloabl.login ? { 'id': _global.login.id, 'password': _global.login.password } : null),
+                'password': (_global.file_password ? _global.file_password : null)
+            }).then(
                 data => {
                     _global.folder_data = data;
 
@@ -148,7 +153,7 @@
                     }
 
                     for (i of _global.folder_data.file) {
-                        i.path = path + '/' + i.name;
+                        i.path = '#' + path + i.name;
                     }
                     console.log(_global.folder_data);
                     Vue.set(_global.vue.main, 'folder_data', _global.folder_data);
@@ -156,12 +161,40 @@
             );
         }
 
-	function hash_change(){
-		let url=window.location.href;
-		var path = url.split('#')[1];
-		load_main(path);
+        function hash_change() {
+            let url = window.location.href;
+            var path = url.split('#')[1];
+            load_main(path);
 
-	}
+        }
+
+        function download(path) {
+            return new Promise(function (resolve, reject) {
+                resolve('pass');
+            });
+        }
+
+        function get_file_password(){
+                return 'test_password';
+        }
+
+        function access_next_layer(info) {
+                if (info.type == 'file') {
+                    download(path);
+                }
+                if (info.valid.user && _global.login) {
+                    //user auth way is unavaliable now!!!
+                }
+                if (info.valid.password) {
+                    let password=get_file_password;
+                    if (password.error) {
+                        deal_with_error(password.error);
+                    }
+                    _global.file_password=password;
+                    return true;
+                }
+                
+        }
 
         _global = {};
 
@@ -180,9 +213,9 @@
         });
 
         hash_change();
-	//load_main();
+        //load_main();
 
-	window.onhashchange = hash_change;
+        window.onhashchange = hash_change;
 
     </script>
 </body>

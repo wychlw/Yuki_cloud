@@ -1,22 +1,12 @@
 const express = require('express');
-const sqlite3 = require('sqlite3');
 const fs = require('fs').promises;
 
 const config = require('./config');
 const read_file = require('./components/readfile');
-const { fstat } = require('fs');
 
 var app = express();
 
 //init
-
-/*
-var db = new sqlite3.Database('database.sqlite3', function (e) {
-    if (err) {
-        throw (err);
-    }
-});
-*/
 
 /**
  * don't know why sqlite3 can not use

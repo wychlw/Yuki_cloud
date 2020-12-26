@@ -22,6 +22,8 @@ const read_file = {
                 ret[2] += " Wrong password!";
             }
 
+            //user auth way is not avaliable now!!!
+            /**
             if (file_auth.user) {
                 if (user_auth.user) {
                     for (var j of file_auth.user) {
@@ -33,6 +35,7 @@ const read_file = {
                 ret[1].invalid_user = true;
                 ret[2] += "  Invalid user!";
             }
+            */
 
             if ((!file_auth.password) && (!file_auth.user)) {
                 resolve([200, 'success!']);
@@ -88,12 +91,23 @@ const read_file = {
             }
         ).then(
             data => {
-                var file_data = this.folder_data['file'][this.which_file];
+                var file_data = this.folder_data.file[this.which_file];
                 delete file_data.access;
                 if (data != null) {
                     var file_data_add = JSON.parse(data);
-                    for (let i in file_data_add) file_data[i] = file_data_add[i];
-                    for (let i of file_data['file']) delete i.access;
+                    for (let i in file_data_add) {
+                        file_data[i] = file_data_add[i];
+                    }
+                    for (let i of file_data.file) {
+                        i.valid = {};
+                        if (i.access.user) {
+                            i.valid.user = i.access.user;
+                        }
+                        if (i.access.password) {
+                            i.valid.password = true;
+                        }
+                        delete i.access;
+                    }
                 }
                 return Promise.resolve(file_data);
             }, reason => {

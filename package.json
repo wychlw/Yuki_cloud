@@ -19,7 +19,6 @@
   "dependencies": {
     "crypto": "^1.0.1",
     "express": "^4.17.1",
-    "fs": "0.0.1-security",
-    "sqlite3": "^5.0.0"
+    "fs": "0.0.1-security"
   }
 }
