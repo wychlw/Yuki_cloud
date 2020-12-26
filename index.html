@@ -89,8 +89,7 @@
         <template v-if="folder_data">
             <template v-for="i in folder_data.file">
                 <div class="row mx-lg-4">
-                    <a class="col-6 py-3 px-lg-5 border bg-light" :href="i.path"
-                        :onclick="return access_next_layer(i);">
+                    <a class="col-6 py-3 px-lg-5 border bg-light" :href="i.path">
                         <template v-if="i.type == 'folder'">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-folder2" fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -131,7 +130,7 @@
             }
             $.getJSON('/f' + path, {
                 'user':
-                    (gloabl.login ? { 'id': _global.login.id, 'password': _global.login.password } : null),
+                    (_global.login ? { 'id': _global.login.id, 'password': _global.login.password } : null),
                 'password': (_global.file_password ? _global.file_password : null)
             }).then(
                 data => {
@@ -174,26 +173,26 @@
             });
         }
 
-        function get_file_password(){
-                return 'test_password';
+        function get_file_password() {
+            return 'test_password';
         }
 
         function access_next_layer(info) {
-                if (info.type == 'file') {
-                    download(path);
+            if (info.type == 'file') {
+                download(path);
+            }
+            if (info.valid.user && _global.login) {
+                //user auth way is unavaliable now!!!
+            }
+            if (info.valid.password) {
+                let password = get_file_password;
+                if (password.error) {
+                    deal_with_error(password.error);
                 }
-                if (info.valid.user && _global.login) {
-                    //user auth way is unavaliable now!!!
-                }
-                if (info.valid.password) {
-                    let password=get_file_password;
-                    if (password.error) {
-                        deal_with_error(password.error);
-                    }
-                    _global.file_password=password;
-                    return true;
-                }
-                
+                _global.file_password = password;
+                return true;
+            }
+
         }
 
         _global = {};

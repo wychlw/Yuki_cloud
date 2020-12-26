@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs').promises;
 
 const config = require('./config');
-const read_file = require('./components/readfile');
+const file_system = require('./components/file_system');
 
 var app = express();
 
@@ -27,7 +27,7 @@ app.get('/f/*', (req, res) => {
     var path = './contents' + req.path.substr(2);
     var password = req.query.password ? req.query.password : null;
     var user = req.query.user ? req.query.user : null;
-    read_file.read_file(path, { 'password': password, 'user': user }).then(
+    file_system.read_file(path, { 'password': password, 'user': user }).then(
         data => {
             console.log(data);
             res.status(200).json(data);
@@ -44,7 +44,7 @@ app.get('/d/*', (req,res)=>{
     var path='./contents'+req.path.substr(2);
     var password = req.query.password ? req.query.password : null;
     var user = req.query.user ? req.query.user : null;
-    read_file.read_file(path, { 'password': password, 'user': user }).then(
+    file_system.read_file(path, { 'password': password, 'user': user }).then(
         data => {
             console.log(data);
             if (data.type=='folder'){
