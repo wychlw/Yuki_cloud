@@ -60,7 +60,7 @@ app.get('/d/*', (req, res) => {
         data => {
             console.log(data);
             if (data.type == 'folder') {
-                res.redirect(301, '/r/' + req.path.substr(2));
+                res.redirect(301, '/f/' + req.path.substr(2));
             }
             res.download(path);
         }, reason => {

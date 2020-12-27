@@ -26,6 +26,9 @@
 
 <body>
 
+    <div id="download_trigger" style="display: none;">
+    </div>
+
     <header id="vue_header">
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light ml-5 mr-5">
@@ -125,16 +128,55 @@
             console.log(reason);
         }
 
+        function valid(file_path, info = {}) {
+
+            _global.file_password='test_password';
+            _global.user={
+                'name':'develop',
+                'token':'1608990522921&tHlD70F672DZFrf+3QBZGa4fYD2K+zO6+Sbe6AWBlr8='
+            }
+
+        }
+
+        function download(path) {
+            var url='/d'+path+'?';
+            if (_global.user) {
+                url+='user[name]='+_global.user.name+'&user[token]='+_global.user.token+'&';
+            }
+            if (_global.file_password) {
+                url+='password='+_global.file_password;
+            }
+            var name = path.split('/').reverse()[0] == '' ? path.split('/').reverse()[1] : path.split('/').reverse()[0];
+            $('#download_trigger').append("<a href=\""+url+"\" download=\""+name+"\" id=\"download_a_trigger\">trigger</a>");
+            document.getElementById("download_a_trigger").click();
+            $('#download_trigger').empty();
+            window.history.back();
+        }
+
         function load_main(path = null) {
             if (!path || path == '') {
                 path = '/';
             }
+            let file = path.split('/').reverse()[0] == '' ? path.split('/').reverse()[1] : path.split('/').reverse()[0];
+            if (_global.folder_data) {
+                for (i of _global.folder_data.file) {
+                    if (i.name == file) {
+                        valid(path, i.valid);
+                        break;
+                    }
+                }
+            }
             $.getJSON('/f' + path, {
                 'user':
-                    (_global.login ? _global.login : null),
+                    (_global.user ? _global.user : null),
                 'password': (_global.file_password ? _global.file_password : null)
             }).then(
                 data => {
+
+                    if (data.type=='file') {
+                        return download(path);
+                    }
+
                     _global.folder_data = data;
 
                     var path_temp = path.split('?')[0].split('/');
@@ -168,11 +210,35 @@
 
         }
 
-        
+
 
         _global = {};
 
         _global.vue = {};
+
+        //init indexedDB
+        _global.indexedDB = window.indexedDB.open('Yuki_cloud');
+
+        _global.indexedDB.onupgradeneeded = data => {
+            var db = data.target.result;
+            if (!db.objectStoreNames.contains('password')) {
+
+                var objectStore = db.createObjectStore('password', {
+                    keyPath: "id",
+                    autoIncrement: true
+                });
+
+                objectStore.createIndex("path", "path", {
+                    unique: true
+                });
+
+                objectStore.createIndex("password", "password", {
+                    unique: false
+                });
+
+            }
+        }
+        //end
 
         _global.vue.header = new Vue({
             el: "#vue_header",

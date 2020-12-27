@@ -35,7 +35,6 @@ const user_system = {
 	},
 
 	valid(name, token) {
-		console.log('v');
 		let token_proc = token.split('&');
 		var time = token_proc[0];
 		var user_token_hash = token_proc[1];
@@ -55,7 +54,6 @@ const user_system = {
 			return ([400, 'User login out of date']);
 		}
 
-		console.log('s');
 		return ([200, 'Success']);
 	}
 
