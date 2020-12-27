@@ -1,10 +1,14 @@
 const crypto = require('crypto');
 const fs = require('fs').promises;
 
+const config=require('./../config');
+const user_system=require('./user_system');
+
 const read_file = {
 
     'folder_data': null,
     'which_file': null,
+    'salt':config.salt,
 
     check_auth(user_auth, file_auth) {
         return new Promise(function (resolve, reject) {
@@ -14,7 +18,8 @@ const read_file = {
             if (file_auth.password) {
                 if (user_auth.password) {
                     let hash = crypto.createHash('sha256');
-                    let input_pass_hash = hash.update(user_auth.password).digest().toString('base64');
+                    let input_pass=user_auth.password + this.salt;
+                    let input_pass_hash = hash.update(input_pass).digest().toString('base64');
                     if (input_pass_hash == file_auth.password) resolve([200, 'success!']);
                 }
 
@@ -22,12 +27,15 @@ const read_file = {
                 ret[2] += " Wrong password!";
             }
 
-            //user auth way is not avaliable now!!!
-            /**
             if (file_auth.user) {
                 if (user_auth.user) {
                     for (var j of file_auth.user) {
-                        if (user_auth.user == j) resolve([200, 'success!']);
+                        if (user_auth.user.name == j) {
+                            let info=user_system.valid(user_auth.user.name,user_auth.user.token);
+                            if (info[0]==200){
+                                resolve([200, 'success!']);
+                            }
+                        }
 
                     }
                 }
@@ -35,7 +43,6 @@ const read_file = {
                 ret[1].invalid_user = true;
                 ret[2] += "  Invalid user!";
             }
-            */
 
             if ((!file_auth.password) && (!file_auth.user)) {
                 resolve([200, 'success!']);

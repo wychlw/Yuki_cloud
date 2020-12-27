@@ -15,11 +15,23 @@ var app = express();
   */
 
 /**
+ * api:
+ * 
  * /#/* is for build single_page application
  * /f/* is for get file data
+ * /api/* is discribed below
  * /d/* is for download file (if it is a folde, then goto /r/*)
  * /s/* is for share file 
+ *
  */
+
+ /**
+  * /api/*:
+  * some function may not so important or just very small, so is unfit to make a new top list specfic for it.
+  * so, they will be put to here
+  * 
+  * /api/login login
+  */
 
 app.get('/f/*', (req, res) => {
     console.log("query file with path:" + req.path);
@@ -38,17 +50,17 @@ app.get('/f/*', (req, res) => {
     );
 });
 
-app.get('/d/*', (req,res)=>{
-    console.log("download file with path:"+req.path);
-    console.log("and "+JSON.stringify(req.query));
-    var path='./contents'+req.path.substr(2);
+app.get('/d/*', (req, res) => {
+    console.log("download file with path:" + req.path);
+    console.log("and " + JSON.stringify(req.query));
+    var path = './contents' + req.path.substr(2);
     var password = req.query.password ? req.query.password : null;
     var user = req.query.user ? req.query.user : null;
     file_system.read_file(path, { 'password': password, 'user': user }).then(
         data => {
             console.log(data);
-            if (data.type=='folder'){
-                res.redirect(301,'/r/'+req.path.substr(2));
+            if (data.type == 'folder') {
+                res.redirect(301, '/r/' + req.path.substr(2));
             }
             res.download(path);
         }, reason => {
@@ -75,12 +87,12 @@ app.get('/', (req, res) => {
     );
 });
 
-app.get('*',(req,res)=>{
-	console.log('404 query\n'+req.path);
-	res.status(404).send();
+app.get('*', (req, res) => {
+    console.log('404 query\n' + req.path);
+    res.status(404).send();
 });
 
-app.listen(config.port,config.url, () => {
+app.listen(config.port, config.url, () => {
     console.log('listen on:');
     console.log(config);
 })

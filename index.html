@@ -121,6 +121,7 @@
     <script>
 
         function deal_with_error(reason) {
+            console.log('dellia');
             console.log(reason);
         }
 
@@ -130,7 +131,7 @@
             }
             $.getJSON('/f' + path, {
                 'user':
-                    (_global.login ? { 'id': _global.login.id, 'password': _global.login.password } : null),
+                    (_global.login ? _global.login : null),
                 'password': (_global.file_password ? _global.file_password : null)
             }).then(
                 data => {
@@ -167,33 +168,7 @@
 
         }
 
-        function download(path) {
-            return new Promise(function (resolve, reject) {
-                resolve('pass');
-            });
-        }
-
-        function get_file_password() {
-            return 'test_password';
-        }
-
-        function access_next_layer(info) {
-            if (info.type == 'file') {
-                download(path);
-            }
-            if (info.valid.user && _global.login) {
-                //user auth way is unavaliable now!!!
-            }
-            if (info.valid.password) {
-                let password = get_file_password;
-                if (password.error) {
-                    deal_with_error(password.error);
-                }
-                _global.file_password = password;
-                return true;
-            }
-
-        }
+        
 
         _global = {};
 
