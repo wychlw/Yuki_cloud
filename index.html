@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+
+    <script>
+        if (document.all) alert('你的浏览器太旧了，恕不奉陪');
+    </script>
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
+        crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+
+<body>
+
+    <div id="download_trigger" style="display: none;">
+    </div>
+
+    <header id="vue_header">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light ml-5 mr-5">
+            <a class="navbar-brand" href="#/">Yuki cloud</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#/">ROOT MENU</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/wychlw/Yuki_cloud">ABOUT</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+    </header>
+
+    <main id="vue_main" class="container">
+
+
+        <header class="mt-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <template v-if="folder_data">
+                        <template v-for="i in folder_data.path">
+                            <template v-if="i.path != folder_data.path[(folder_data.path.length-1)].path">
+                                <li class="breadcrumb-item" :key="i.name">
+                                    <a :href="i.path">
+                                        {{i.name}}
+                                    </a>
+                                </li>
+                            </template>
+                            <template v-else>
+                                <li class="breadcrumb-item active" :key="i.name">
+                                    {{i.name}}
+                                </li>
+                            </template>
+                        </template>
+                    </template>
+                </ol>
+            </nav>
+        </header>
+
+        <div class="row mx-lg-4">
+            <div class="col-6 py-3 px-lg-5 border bg-light">
+                File
+            </div>
+            <div class="col-2 py-3 px-lg-5 border bg-light">
+                Type
+            </div>
+            <div class="col-4 py-3 px-lg-5 border bg-light">
+                Operation
+            </div>
+        </div>
+        <template v-if="folder_data">
+            <template v-for="i in folder_data.file">
+                <div class="row mx-lg-4">
+                    <a class="col-6 py-3 px-lg-5 border bg-light" :href="i.path">
+                        <template v-if="i.type == 'folder'">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-folder2" fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
+                            </svg>
+                        </template>
+                        <template v-if="i.type == 'file'">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-file-earmark"
+                                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z" />
+                                <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z" />
+                            </svg>
+                        </template>
+                        {{i.name}}
+                    </a>
+                    <div class="col-2 py-3 px-lg-5 border bg-light">
+                        {{i.type}}
+                    </div>
+                    <div class="col-4 py-3 px-lg-5 border bg-light">
+                        undefined
+                    </div>
+                </div>
+            </template>
+        </template>
+    </main>
+
+    <div id="upload">
+
+    </div>
+
+    <script>
+
+        function deal_with_error(reason) {
+            console.log('dellia');
+            console.log(reason);
+        }
+
+        function valid(file_path, info = {}) {
+
+            _global.file_password = 'test_password';
+            _global.user = {
+                'name': 'develop',
+                'token': '1608990522921&tHlD70F672DZFrf+3QBZGa4fYD2K+zO6+Sbe6AWBlr8='
+            }
+
+        }
+
+        function download(path) {
+            var url = '/d' + path + '?';
+            if (_global.user) {
+                url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
+            }
+            if (_global.file_password) {
+                url += 'password=' + _global.file_password;
+            }
+            var name = path.split('/').reverse()[0] == '' ? path.split('/').reverse()[1] : path.split('/').reverse()[0];
+            $('#download_trigger').append("<a href=\"" + url + "\" download=\"" + name + "\" id=\"download_a_trigger\">trigger</a>");
+            document.getElementById("download_a_trigger").click();
+            $('#download_trigger').empty();
+            window.history.back();
+        }
+
+        function load_main(path = null) {
+            if (!path || path == '') {
+                path = '/';
+            }
+            let file = path.split('/').reverse()[0] == '' ? path.split('/').reverse()[1] : path.split('/').reverse()[0];
+            if (_global.folder_data) {
+                for (i of _global.folder_data.file) {
+                    if (i.name == file) {
+                        valid(path, i.valid);
+                        break;
+                    }
+                }
+            }
+            $.getJSON('/f' + path, {
+                'user':
+                    (_global.user ? _global.user : null),
+                'password': (_global.file_password ? _global.file_password : null)
+            }).then(
+                data => {
+
+                    if (data.type == 'file') {
+                        return download(path);
+                    }
+
+                    _global.folder_data = data;
+
+                    var path_temp = path.split('?')[0].split('/');
+                    _global.folder_data.path = [];
+                    _global.folder_data.path.push({
+                        'name': '/',
+                        'path': '#/'
+                    });
+                    for (i of path_temp) {
+                        if (i != '') {
+                            _global.folder_data.path.push({
+                                'name': i,
+                                'path': _global.folder_data.path[_global.folder_data.path.length - 1] + i
+                            });
+                        }
+                    }
+
+                    for (i of _global.folder_data.file) {
+                        i.path = '#' + path + i.name;
+                    }
+                    console.log(_global.folder_data);
+                    Vue.set(_global.vue.main, 'folder_data', _global.folder_data);
+                }, deal_with_error
+            );
+        }
+
+        function hash_change() {
+            let url = window.location.href;
+            var path = url.split('#')[1];
+            load_main(path);
+
+        }
+
+
+
+        _global = {};
+
+        _global.vue = {};
+
+        //init indexedDB
+        _global.indexedDB = window.indexedDB.open('Yuki_cloud');
+
+        _global.indexedDB.onupgradeneeded = data => {
+            var db = data.target.result;
+            if (!db.objectStoreNames.contains('password')) {
+
+                var objectStore = db.createObjectStore('password', {
+                    keyPath: "id",
+                    autoIncrement: true
+                });
+
+                objectStore.createIndex("path", "path", {
+                    unique: true
+                });
+
+                objectStore.createIndex("password", "password", {
+                    unique: false
+                });
+
+            }
+        }
+        //end
+
+        _global.vue.header = new Vue({
+            el: "#vue_header",
+            data: {}
+        });
+
+        _global.vue.main = new Vue({
+            el: "#vue_main",
+            data: {
+                'folder_data': null
+            }
+        });
+
+        _global.vue.upload = new Vue({
+            el: "#upload",
+            data: {}
+        });
+
+        hash_change();
+        //load_main();
+
+        window.onhashchange = hash_change;
+
+    </script>
+</body>
+
+</html>
