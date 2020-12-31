@@ -1,5 +1,7 @@
 const express = require('express');
 const fs = require('fs').promises;
+const fs_sync = require('fs');
+const busboy = require('busboy');
 
 const config = require('./config');
 const file_system = require('./components/file_system');
@@ -25,13 +27,13 @@ var app = express();
  *
  */
 
- /**
-  * /api/*:
-  * some function may not so important or just very small, so is unfit to make a new top list specfic for it.
-  * so, they will be put to here
-  * 
-  * /api/login login
-  */
+/**
+ * /api/*:
+ * some function may not so important or just very small, so is unfit to make a new top list specfic for it.
+ * so, they will be put to here
+ * 
+ * /api/login login
+ */
 
 app.get('/f/*', (req, res) => {
     console.log("query file with path:" + req.path);
@@ -68,6 +70,35 @@ app.get('/d/*', (req, res) => {
             res.status(reason[0]).json(reason);
         }
     );
+});
+
+app.post('/u/*', (req, res) => {
+    console.log("upload file with path:" + req.path);
+    console.log("and " + JSON.stringify(req.query));
+    var path = './contents' + req.path.substr(2);
+    var password = req.query.password ? req.query.password : null;
+    var user = req.query.user ? req.query.user : null;
+    var file_access=req.file_access;
+    var bsb = new busboy({ headers: req.headers });
+    bsb.on('file', function (fieldname, file, filename, encoding, mimetype) {
+        console.log('brb');
+        console.log(fieldname, filename);
+        file_system.upload_file(path, file, { 
+            'file_name': filename, 
+            'encoding': encoding, 
+            'mimetype': mimetype }, 
+            { 'password': password, 'user': user },
+            file_access);
+    });
+    bsb.on('finish', function () {
+        res.writeHead(200, { 'Connection': 'close' });
+        res.end('Success');
+    });
+    bsb.on('error', () => {
+        res.writeHead(500, { 'Connection': 'close' });
+        res.end('Fail');
+    });
+    return req.pipe(bsb);
 });
 
 app.get('/', (req, res) => {
