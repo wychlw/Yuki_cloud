@@ -24,6 +24,7 @@ var app = express();
  * /api/* is discribed below
  * /d/* is for download file (if it is a folde, then goto /r/*)
  * /s/* is for share file 
+ * /u/* is for upload file
  *
  */
 
@@ -33,6 +34,7 @@ var app = express();
  * so, they will be put to here
  * 
  * /api/login login
+ * /api/create_folder create_folder
  */
 
 app.get('/f/*', (req, res) => {
@@ -79,27 +81,40 @@ app.post('/u/*', (req, res) => {
     var password = req.query.password ? req.query.password : null;
     var user = req.query.user ? req.query.user : null;
     var file_access = req.query.file_access ? req.query.file_access : {};
-    var bsb = new busboy({ headers: req.headers });
-    bsb.on('file', function (fieldname, file, filename, encoding, mimetype) {
-        console.log('brb');
-        console.log(fieldname, filename);
-        file_system.upload_file(path, file, {
-            'file_name': filename,
-            'encoding': encoding,
-            'mimetype': mimetype
-        },
-            { 'password': password, 'user': user },
-            file_access);
-    });
-    bsb.on('finish', function () {
-        res.writeHead(200, { 'Connection': 'close' });
-        res.end('Success');
-    });
-    bsb.on('error', () => {
-        res.writeHead(500, { 'Connection': 'close' });
-        res.end('Fail');
-    });
-    return req.pipe(bsb);
+
+    if (req.query.folder) {
+        console.log('it\'s a create with name ' + req.query.name + '!');
+        file_system.create_folder(path, req.query.name, { 'password': password, 'user': user }, file_access).then(
+            data => {
+                res.status(200).send('Success!');
+            }, reason => {
+                console.log(reason);
+                res.status(500).send(reason);
+            }
+        );
+    } else {
+        var bsb = new busboy({ headers: req.headers });
+        bsb.on('file', function (fieldname, file, filename, encoding, mimetype) {
+            console.log('brb');
+            console.log(fieldname, filename);
+            file_system.upload_file(path, file, {
+                'file_name': filename,
+                'encoding': encoding,
+                'mimetype': mimetype
+            },
+                { 'password': password, 'user': user },
+                file_access);
+        });
+        bsb.on('finish', function () {
+            res.writeHead(200, { 'Connection': 'close' });
+            res.end('Success');
+        });
+        bsb.on('error', () => {
+            res.writeHead(500, { 'Connection': 'close' });
+            res.end('Fail');
+        });
+        return req.pipe(bsb);
+    }
 });
 
 app.get('/', (req, res) => {

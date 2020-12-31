@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const fs = require('fs').promises;
+const fs_sync = require('fs');
 
 const config = require('./../config');
 const user_system = require('./user_system');
@@ -130,56 +131,156 @@ const read_file = {
         }).then(
             data => {
 
-                this.folder_data = JSON.parse(data);
+                var folder_data = JSON.parse(data);
 
                 let split_path = path.split('/')
                 var folder = split_path.pop();
                 if (folder == '') folder = split_path.pop();
 
                 let which_folder = -1;
-                for (let i in this.folder_data['file']) {
-                    if (this.folder_data['file'][i]['name'] == folder) which_folder = i;
+                for (let i in folder_data['file']) {
+                    if (folder_data['file'][i]['name'] == folder) which_folder = i;
                 }
                 if (which_folder == -1) return Promise.reject([404, 'no such folder!']);
 
-                return this.check_auth(auth, this.folder_data['file'][which_folder]['access']);
+                return this.check_auth(auth, folder_data['file'][which_folder]['access']);
             }, reason => {
                 return Promise.reject(reason);
             }
         ).then(
             data => {
-                file.pipe(fs_sync.createWriteStream(path + filename));
 
-                let my_date = new Date();
-                let time_now = my_date.getTime();
-                let time_num = Number(time_now);
+                file.pipe(fs_sync.createWriteStream(path + file_info.file_name));
 
-                var access = {};
-                if (file_auth.user && file_auth.user.length > 0) {
-                    access.user = file_auth.user;
-                }
-                if (file_auth.password & file_auth.password != '') {
-                    access.password = file_auth.password;
-                }
-
-                this.folder_data.file.push({
-                    'name': filename,
-                    'type': 'file',
-                    'last_modification_time': time_num,
-                    'access': access
-                });
-
-                return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(this.folder_data), {
+                return fs.readFile(path + 'Yuki_config.json', {
                     encoding: "utf-8",
-                    flag: "w"
-                }), reason => {
+                    flag: "r"
+                }, reason => {
                     return Promise.reject(reason);
-                }
+                }).then(data => {
+
+                    var folder_data=JSON.parse(data);
+
+                    let my_date = new Date();
+                    let time_now = my_date.getTime();
+                    let time_num = Number(time_now);
+
+                    var access = {};
+                    if (file_auth.user && file_auth.user.length > 0) {
+                        access.user = file_auth.user;
+                    }
+                    if (file_auth.password && file_auth.password != '') {
+                        access.password = file_auth.password;
+                    }
+
+                    folder_data.file.push({
+                        'name': file_info.file_name,
+                        'type': 'file',
+                        'last_modification_time': time_num,
+                        'access': access
+                    });
+
+                    folder_data.file_num=folder_data.file.length;
+
+                    return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
+                        encoding: "utf-8",
+                        flag: "w"
+                    });
+
+                }, reason => {
+                    return Promise.reject(reason);
+
+                });
 
             }
         );
 
-    }
+    },
+
+    create_folder(path, name, auth = {}, folder_auth = {}) {
+        return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
+            encoding: "utf-8",
+            flag: "r"
+        }).then(
+            data => {
+
+                var folder_data = JSON.parse(data);
+
+                let split_path = path.split('/')
+                var folder = split_path.pop();
+                if (folder == '') folder = split_path.pop();
+
+                let which_folder = -1;
+                for (let i in folder_data['file']) {
+                    if (folder_data['file'][i]['name'] == folder) which_folder = i;
+                }
+                if (which_folder == -1) return Promise.reject([404, 'no such folder!']);
+
+                return this.check_auth(auth, folder_data['file'][which_folder]['access']);
+            }, reason => {
+                return Promise.reject(reason);
+            }
+        ).then(
+            data=> {
+                return fs.mkdir(path+name);
+            },reason=>{
+                return Promise.reject(reason);
+            }
+        ).then(
+            data=>{
+                var folder_data={
+                    file_num:0,
+                    file:[]
+                };
+                return fs.writeFile(path+name+'/Yuki_config.json',JSON.stringify(folder_data));
+            }
+        ).then(
+            data => {
+
+                return fs.readFile(path + 'Yuki_config.json', {
+                    encoding: "utf-8",
+                    flag: "r"
+                }, reason => {
+                    return Promise.reject(reason);
+                }).then(data => {
+
+                    var folder_data=JSON.parse(data);
+
+                    let my_date = new Date();
+                    let time_now = my_date.getTime();
+                    let time_num = Number(time_now);
+
+                    var access = {};
+                    if (folder_auth.user && folder_auth.user.length > 0) {
+                        access.user = folder_auth.user;
+                    }
+                    if (folder_auth.password && folder_auth.password != '') {
+                        access.password = folder_auth.password;
+                    }
+
+                    folder_data.file.push({
+                        'name': name,
+                        'type': 'folder',
+                        'last_modification_time': time_num,
+                        'access': access
+                    });
+
+                    folder_data.file_num=folder_data.file.length;
+
+                    return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
+                        encoding: "utf-8",
+                        flag: "w"
+                    });
+
+                }, reason => {
+                    return Promise.reject(reason);
+
+                });
+
+            }
+        );
+
+    },
 
 }
 
