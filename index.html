@@ -119,10 +119,83 @@
                 </div>
             </template>
         </template>
+        <hr>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-secondary" onclick='$("#upload_modal").modal("show");'>上传文件</button>
+            <button type="button" class="btn btn-secondary"
+                onclick='$("#create_folder_modal").modal("show");'>新建文件夹</button>
+        </div>
     </main>
 
-    <div id="upload">
+    <div id="cert">
+        <template v-if="show">
+            <div class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Modal body text goes here.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
 
+    <div id="upload_file_div">
+        <div class="modal fade" tabindex="-1" role="dialog" id="upload_modal">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">upload file</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="file" id="upload_file" class="btn btn-secondary btn-sm">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">close</button>
+                        <button type="button" class="btn btn-primary" onclick="upload();">upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="create_folder_div">
+        <div class="modal fade" tabindex="-1" role="dialog" id="create_folder_modal">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">create folder</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group flex-nowrap">
+                            <div class="input-group-prepend">
+                              <span class="input-group-text" id="addon-wrapping">name</span>
+                            </div>
+                            <input type="text" class="form-control" aria-describedby="addon-wrapping" id="create_folder">
+                          </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">close</button>
+                        <button type="button" class="btn btn-primary" onclick="create_folder();">create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -155,6 +228,59 @@
             document.getElementById("download_a_trigger").click();
             $('#download_trigger').empty();
             window.history.back();
+        }
+
+        function upload() {
+            var file = $('#upload_file')[0].files[0];
+
+            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?folder=false&';
+            if (_global.user) {
+                url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
+            }
+            if (_global.file_password) {
+                url += 'password=' + _global.file_password;
+            }
+
+            var form_data = new FormData();
+            form_data.append(file.name, file);
+            $.ajax({
+                url: url,
+                type: 'post',
+                processData: false,
+                contentType: false,
+                data: form_data
+            }).then(
+                data => {
+                    $('#upload_modal').modal('hide');
+                }, reason => {
+                    deal_with_error
+                }
+            );
+        }
+
+        function create_folder(){
+            var name = $('#create_folder')[0].value;
+
+            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?folder=true&name='+name+'&';
+            if (_global.user) {
+                url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
+            }
+            if (_global.file_password) {
+                url += 'password=' + _global.file_password;
+            }
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                processData: false,
+                contentType: false
+            }).then(
+                data => {
+                    $('#create_folder_modal').modal('hide');
+                }, reason => {
+                    deal_with_error
+                }
+            );
         }
 
         function load_main(path = null) {
@@ -193,7 +319,7 @@
                         if (i != '') {
                             _global.folder_data.path.push({
                                 'name': i,
-                                'path': _global.folder_data.path[_global.folder_data.path.length - 1] + i
+                                'path': _global.folder_data.path[_global.folder_data.path.length - 1].path + i
                             });
                         }
                     }
@@ -256,9 +382,13 @@
             }
         });
 
-        _global.vue.upload = new Vue({
-            el: "#upload",
-            data: {}
+        _global.vue.cert = new Vue({
+            el: "#cert",
+            data: {
+                show: false,
+                password: false,
+                user: false
+            }
         });
 
         hash_change();
