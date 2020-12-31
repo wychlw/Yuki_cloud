@@ -123,7 +123,7 @@ const read_file = {
         );
     },
 
-    upload_file(path, file, file_info = {}, auth = {},file_auth={}) {
+    upload_file(path, file, file_info = {}, auth = {}, file_auth = {}) {
         return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
             encoding: "utf-8",
             flag: "r"
@@ -154,12 +154,12 @@ const read_file = {
                 let time_now = my_date.getTime();
                 let time_num = Number(time_now);
 
-                var access={};
-                if(file_auth.user&&file_auth.user.length>0){
-                    access.user=file_auth.user;
+                var access = {};
+                if (file_auth.user && file_auth.user.length > 0) {
+                    access.user = file_auth.user;
                 }
-                if (file_auth.password&file_auth.password!=''){
-                    access.password=file_auth.password;
+                if (file_auth.password & file_auth.password != '') {
+                    access.password = file_auth.password;
                 }
 
                 this.folder_data.file.push({
@@ -172,7 +172,9 @@ const read_file = {
                 return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(this.folder_data), {
                     encoding: "utf-8",
                     flag: "w"
-                })
+                }), reason => {
+                    return Promise.reject(reason);
+                }
 
             }
         );

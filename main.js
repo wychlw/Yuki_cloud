@@ -78,15 +78,16 @@ app.post('/u/*', (req, res) => {
     var path = './contents' + req.path.substr(2);
     var password = req.query.password ? req.query.password : null;
     var user = req.query.user ? req.query.user : null;
-    var file_access=req.file_access;
+    var file_access = req.query.file_access ? req.query.file_access : {};
     var bsb = new busboy({ headers: req.headers });
     bsb.on('file', function (fieldname, file, filename, encoding, mimetype) {
         console.log('brb');
         console.log(fieldname, filename);
-        file_system.upload_file(path, file, { 
-            'file_name': filename, 
-            'encoding': encoding, 
-            'mimetype': mimetype }, 
+        file_system.upload_file(path, file, {
+            'file_name': filename,
+            'encoding': encoding,
+            'mimetype': mimetype
+        },
             { 'password': password, 'user': user },
             file_access);
     });

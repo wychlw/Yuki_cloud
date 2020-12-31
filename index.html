@@ -121,6 +121,10 @@
         </template>
     </main>
 
+    <div id="upload">
+
+    </div>
+
     <script>
 
         function deal_with_error(reason) {
@@ -130,24 +134,24 @@
 
         function valid(file_path, info = {}) {
 
-            _global.file_password='test_password';
-            _global.user={
-                'name':'develop',
-                'token':'1608990522921&tHlD70F672DZFrf+3QBZGa4fYD2K+zO6+Sbe6AWBlr8='
+            _global.file_password = 'test_password';
+            _global.user = {
+                'name': 'develop',
+                'token': '1608990522921&tHlD70F672DZFrf+3QBZGa4fYD2K+zO6+Sbe6AWBlr8='
             }
 
         }
 
         function download(path) {
-            var url='/d'+path+'?';
+            var url = '/d' + path + '?';
             if (_global.user) {
-                url+='user[name]='+_global.user.name+'&user[token]='+_global.user.token+'&';
+                url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
             }
             if (_global.file_password) {
-                url+='password='+_global.file_password;
+                url += 'password=' + _global.file_password;
             }
             var name = path.split('/').reverse()[0] == '' ? path.split('/').reverse()[1] : path.split('/').reverse()[0];
-            $('#download_trigger').append("<a href=\""+url+"\" download=\""+name+"\" id=\"download_a_trigger\">trigger</a>");
+            $('#download_trigger').append("<a href=\"" + url + "\" download=\"" + name + "\" id=\"download_a_trigger\">trigger</a>");
             document.getElementById("download_a_trigger").click();
             $('#download_trigger').empty();
             window.history.back();
@@ -173,7 +177,7 @@
             }).then(
                 data => {
 
-                    if (data.type=='file') {
+                    if (data.type == 'file') {
                         return download(path);
                     }
 
@@ -250,6 +254,11 @@
             data: {
                 'folder_data': null
             }
+        });
+
+        _global.vue.upload = new Vue({
+            el: "#upload",
+            data: {}
         });
 
         hash_change();
