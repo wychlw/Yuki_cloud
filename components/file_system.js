@@ -21,7 +21,9 @@ const read_file = {
                     let hash = crypto.createHash('sha256');
                     let input_pass = user_auth.password + this.salt;
                     let input_pass_hash = hash.update(input_pass).digest().toString('base64');
-                    if (input_pass_hash == file_auth.password) resolve([200, 'success!']);
+                    if (input_pass_hash == file_auth.password) {
+                        resolve([200, 'success!']);
+                    }
                 }
 
                 ret[1].wrong_password = true;
@@ -36,6 +38,7 @@ const read_file = {
                             if (info[0] == 200) {
                                 resolve([200, 'success!']);
                             }
+                            ret[2] += "   " + info[1];
                         }
 
                     }
@@ -150,6 +153,10 @@ const read_file = {
         ).then(
             data => {
 
+                if (path[path.length - 1] != '/') {
+                    path += '/';
+                }
+
                 file.pipe(fs_sync.createWriteStream(path + file_info.file_name));
 
                 return fs.readFile(path + 'Yuki_config.json', {
@@ -157,40 +164,41 @@ const read_file = {
                     flag: "r"
                 }, reason => {
                     return Promise.reject(reason);
-                }).then(data => {
+                }).then(
+                    data => {
 
-                    var folder_data=JSON.parse(data);
+                        var folder_data = JSON.parse(data);
 
-                    let my_date = new Date();
-                    let time_now = my_date.getTime();
-                    let time_num = Number(time_now);
+                        let my_date = new Date();
+                        let time_now = my_date.getTime();
+                        let time_num = Number(time_now);
 
-                    var access = {};
-                    if (file_auth.user && file_auth.user.length > 0) {
-                        access.user = file_auth.user;
-                    }
-                    if (file_auth.password && file_auth.password != '') {
-                        access.password = file_auth.password;
-                    }
+                        var access = {};
+                        if (file_auth.user && file_auth.user.length > 0) {
+                            access.user = file_auth.user;
+                        }
+                        if (file_auth.password && file_auth.password != '') {
+                            access.password = file_auth.password;
+                        }
 
-                    folder_data.file.push({
-                        'name': file_info.file_name,
-                        'type': 'file',
-                        'last_modification_time': time_num,
-                        'access': access
+                        folder_data.file.push({
+                            'name': file_info.file_name,
+                            'type': 'file',
+                            'last_modification_time': time_num,
+                            'access': access
+                        });
+
+                        folder_data.file_num = folder_data.file.length;
+
+                        return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
+                            encoding: "utf-8",
+                            flag: "w"
+                        });
+
+                    }, reason => {
+                        return Promise.reject(reason);
+
                     });
-
-                    folder_data.file_num=folder_data.file.length;
-
-                    return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
-                        encoding: "utf-8",
-                        flag: "w"
-                    });
-
-                }, reason => {
-                    return Promise.reject(reason);
-
-                });
 
             }
         );
@@ -221,18 +229,18 @@ const read_file = {
                 return Promise.reject(reason);
             }
         ).then(
-            data=> {
-                return fs.mkdir(path+name);
-            },reason=>{
+            data => {
+                return fs.mkdir(path + name);
+            }, reason => {
                 return Promise.reject(reason);
             }
         ).then(
-            data=>{
-                var folder_data={
-                    file_num:0,
-                    file:[]
+            data => {
+                var folder_data = {
+                    file_num: 0,
+                    file: []
                 };
-                return fs.writeFile(path+name+'/Yuki_config.json',JSON.stringify(folder_data));
+                return fs.writeFile(path + name + '/Yuki_config.json', JSON.stringify(folder_data));
             }
         ).then(
             data => {
@@ -244,7 +252,7 @@ const read_file = {
                     return Promise.reject(reason);
                 }).then(data => {
 
-                    var folder_data=JSON.parse(data);
+                    var folder_data = JSON.parse(data);
 
                     let my_date = new Date();
                     let time_now = my_date.getTime();
@@ -265,7 +273,7 @@ const read_file = {
                         'access': access
                     });
 
-                    folder_data.file_num=folder_data.file.length;
+                    folder_data.file_num = folder_data.file.length;
 
                     return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
                         encoding: "utf-8",
@@ -280,6 +288,67 @@ const read_file = {
             }
         );
 
+    },
+
+    delete_file(path, auth = {}) {
+        return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
+            encoding: "utf-8",
+            flag: "r"
+        }).then(
+            data => {
+
+                this.folder_data = JSON.parse(data);
+
+                let split_path = path.split('/')
+                var file = split_path.pop();
+                if (file == '') file = split_path.pop();
+
+                this.which_file = -1;
+                for (let i in this.folder_data['file']) {
+                    if (this.folder_data['file'][i]['name'] == file) this.which_file = i;
+                }
+                if (this.which_file == -1) return Promise.reject([404, 'no such file!']);
+
+                return this.check_auth(auth, this.folder_data['file'][this.which_file]['access']);
+
+            }, reason => {
+                return Promise.reject(reason);
+            }
+        ).then(
+            data => {
+                if (this.folder_data['file'][this.which_file]['type'] == 'folder') {
+                    return fs.readFile(path + '/Yuki_config.json', {
+                        encoding: "utf-8",
+                        flag: "r"
+                    });
+                }
+                return Promise.resolve(null);
+            },
+            reason => {
+                return Promise.reject(reason);
+            }
+        ).then(
+            data => {
+                return fs.unlink(path);
+            }, reason => {
+                return Promise.reject(reason);
+            }
+        ).then(
+            data => {
+
+                return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', JSON.stringify(this.folder_data), {
+                    encoding: "utf-8",
+                    flag: "r"
+                });
+            }
+        ).then(
+            data=>{
+
+                var folder_data=JSON.parse(data);
+
+                
+            }
+        )
     },
 
 }

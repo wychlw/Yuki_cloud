@@ -22,7 +22,8 @@ var app = express();
  * /#/* is for build single_page application
  * /f/* is for get file data
  * /api/* is discribed below
- * /d/* is for download file (if it is a folde, then goto /r/*)
+ * /d/* is for download file (if it is a folde, then goto /f/*)
+ * /r/* id for remove file
  * /s/* is for share file 
  * /u/* is for upload file
  *
@@ -82,7 +83,9 @@ app.post('/u/*', (req, res) => {
     var user = req.query.user ? req.query.user : null;
     var file_access = req.query.file_access ? req.query.file_access : {};
 
-    if (req.query.folder) {
+    console.log(req.query.folder=='false');
+
+    if (req.query.folder && req.query.folder == 'true') {
         console.log('it\'s a create with name ' + req.query.name + '!');
         file_system.create_folder(path, req.query.name, { 'password': password, 'user': user }, file_access).then(
             data => {
@@ -115,6 +118,21 @@ app.post('/u/*', (req, res) => {
         });
         return req.pipe(bsb);
     }
+});
+
+app.get('/r/*', (req, res) => {
+    console.log('delete file:' + req.path);
+    var path = './contents' + req.path.substr(2);
+    var password = req.query.password ? req.query.password : null;
+    var user = req.query.user ? req.query.user : null;
+    file_system.delete_file(path, { 'password': password, 'user': user }).then(
+        data => {
+            res.status(200).send();
+        }, reason => {
+            console.log(reason);
+            res.status(500).send(reason);
+        }
+    );
 });
 
 app.get('/', (req, res) => {

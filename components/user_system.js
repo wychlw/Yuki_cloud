@@ -27,7 +27,7 @@ const user_system = {
 				let token_hash = hash2.update(name + this.salt).digest().toString('base64');
 				let my_date = new Date();
 				let time_now = String(my_date.getTime());
-				let user_token = time_now + '&' + token_hash;
+				let user_token = time_now + '^' + token_hash;
 				return Promise.resolve(user_token);
 			}, reason => {
 				return Promise.reject(reason);
@@ -36,10 +36,11 @@ const user_system = {
 	},
 
 	valid(name, token) {
-		let token_proc = token.split('&');
+		let token_proc = token.split('%');
 		var time = token_proc[0];
 		var user_token_hash = token_proc[1];
 
+		user_token_hash=(user_token_hash.split(' ')).join('+');
 		// is right?
 		let hash = crypto.createHash('sha256');
 		let token_hash = hash.update(name + this.salt).digest().toString('base64');
