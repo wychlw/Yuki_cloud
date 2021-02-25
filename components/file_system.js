@@ -10,6 +10,20 @@ const read_file = {
     'folder_data': null,
     'which_file': null,
     'salt': config.salt,
+    'using': false,
+
+    lock() {
+        return new Promise(function (resolve, reject) {
+
+            while (this.using) {
+                await this.wait(100);
+            }
+
+            this.using = true;
+
+            resolve(null);
+        });
+    },
 
     check_auth(user_auth, file_auth) {
         return new Promise(function (resolve, reject) {
@@ -64,10 +78,14 @@ const read_file = {
          */
 
         //path.substr(0,path.lastIndexOf('/',path.length-2)+1): access upper folder
-        return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
-            encoding: "utf-8",
-            flag: "r"
-        }).then(
+        return this.lock().then(
+            data => {
+                return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
+                    encoding: "utf-8",
+                    flag: "r"
+                });
+            }
+        ).then(
             data => {
 
                 this.folder_data = JSON.parse(data);
@@ -120,6 +138,7 @@ const read_file = {
                         delete i.access;
                     }
                 }
+                this.using = false;
                 return Promise.resolve(file_data);
             }, reason => {
                 return Promise.reject(reason);
@@ -128,10 +147,14 @@ const read_file = {
     },
 
     upload_file(path, file, file_info = {}, auth = {}, file_auth = {}) {
-        return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
-            encoding: "utf-8",
-            flag: "r"
-        }).then(
+        return this.lock().then(
+            data => {
+                return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
+                    encoding: "utf-8",
+                    flag: "r"
+                });
+            }
+        ).then(
             data => {
 
                 var folder_data = JSON.parse(data);
@@ -190,6 +213,8 @@ const read_file = {
 
                         folder_data.file_num = folder_data.file.length;
 
+                        this.using = false;
+
                         return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
                             encoding: "utf-8",
                             flag: "w"
@@ -206,10 +231,14 @@ const read_file = {
     },
 
     create_folder(path, name, auth = {}, folder_auth = {}) {
-        return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
-            encoding: "utf-8",
-            flag: "r"
-        }).then(
+        return this.lock().then(
+            data => {
+                fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
+                    encoding: "utf-8",
+                    flag: "r"
+                });
+            }
+        ).then(
             data => {
 
                 var folder_data = JSON.parse(data);
@@ -275,6 +304,8 @@ const read_file = {
 
                     folder_data.file_num = folder_data.file.length;
 
+                    this.using = false;
+
                     return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data), {
                         encoding: "utf-8",
                         flag: "w"
@@ -291,13 +322,22 @@ const read_file = {
     },
 
     delete_file(path, auth = {}) {
-        return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
-            encoding: "utf-8",
-            flag: "r"
-        }).then(
+        return this.lock().then(
             data => {
 
+                fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', {
+                    encoding: "utf-8",
+                    flag: "r"
+                })
+            }
+        ).then(
+            data => {
+
+                console.log('ccccc');
+
                 this.folder_data = JSON.parse(data);
+
+                console.log(this.folder_data);
 
                 let split_path = path.split('/')
                 var file = split_path.pop();
@@ -305,6 +345,7 @@ const read_file = {
 
                 this.which_file = -1;
                 for (let i in this.folder_data['file']) {
+
                     if (this.folder_data['file'][i]['name'] == file) this.which_file = i;
                 }
                 if (this.which_file == -1) return Promise.reject([404, 'no such file!']);
@@ -316,19 +357,6 @@ const read_file = {
             }
         ).then(
             data => {
-                if (this.folder_data['file'][this.which_file]['type'] == 'folder') {
-                    return fs.readFile(path + '/Yuki_config.json', {
-                        encoding: "utf-8",
-                        flag: "r"
-                    });
-                }
-                return Promise.resolve(null);
-            },
-            reason => {
-                return Promise.reject(reason);
-            }
-        ).then(
-            data => {
                 return fs.unlink(path);
             }, reason => {
                 return Promise.reject(reason);
@@ -336,17 +364,19 @@ const read_file = {
         ).then(
             data => {
 
-                return fs.readFile(path.substr(0, path.lastIndexOf('/', path.length - 2) + 1) + 'Yuki_config.json', JSON.stringify(this.folder_data), {
+                this.folder_data.file.splice(this.which_file, 1);
+
+                this.folder_data.num = this.folder_data.num - 1;
+
+                var folder_data_ls = this.folder_data;
+
+                this.using = false;
+
+                return fs.writeFile(path + 'Yuki_config.json', JSON.stringify(folder_data_ls), {
                     encoding: "utf-8",
-                    flag: "r"
+                    flag: "w"
                 });
-            }
-        ).then(
-            data=>{
 
-                var folder_data=JSON.parse(data);
-
-                
             }
         )
     },

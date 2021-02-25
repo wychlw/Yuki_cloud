@@ -36,7 +36,7 @@ const user_system = {
 	},
 
 	valid(name, token) {
-		let token_proc = token.split('%');
+		let token_proc = token.split('^');
 		var time = token_proc[0];
 		var user_token_hash = token_proc[1];
 
