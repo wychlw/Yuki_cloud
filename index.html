@@ -233,7 +233,7 @@
         function upload() {
             var file = $('#upload_file')[0].files[0];
 
-            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?folder=false&';
+            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?type=file&';
             if (_global.user) {
                 url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
             }
@@ -261,7 +261,7 @@
         function create_folder(){
             var name = $('#create_folder')[0].value;
 
-            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?folder=true&name='+name+'&';
+            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?type=folder&name='+name+'&';
             if (_global.user) {
                 url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
             }

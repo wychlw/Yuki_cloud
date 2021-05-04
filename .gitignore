@@ -1,3 +1,6 @@
+#test files
+contents/*
+
 # Logs
 logs
 *.log
