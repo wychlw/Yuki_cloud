@@ -4,8 +4,9 @@
         {
             "name":"contents",
             "type":"folder",
-            "last_modification_time":"0",
-            "access":{}
+            "auth":{
+                "password":null
+            }
         }
     ]
 }

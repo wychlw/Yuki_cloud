@@ -114,9 +114,7 @@
                         {{i.type}}
                     </div>
                     <div class="col-4 py-3 px-lg-5 border bg-light">
-                        <button type="button" class="btn btn-secondary" v-on:click='delete_file(i.path)'></button>
-                        <i class="fas fa-trash"></i>
-                        </button>
+                        undefined
                     </div>
                 </div>
             </template>
@@ -186,38 +184,14 @@
                     <div class="modal-body">
                         <div class="input-group flex-nowrap">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" id="addon-wrapping">name</span>
+                              <span class="input-group-text" id="addon-wrapping">name</span>
                             </div>
-                            <input type="text" class="form-control" aria-describedby="addon-wrapping"
-                                id="create_folder">
-                        </div>
+                            <input type="text" class="form-control" aria-describedby="addon-wrapping" id="create_folder">
+                          </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">close</button>
                         <button type="button" class="btn btn-primary" onclick="create_folder();">create</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="delete_file_div">
-        <div class="modal fade" tabindex="-1" role="dialog" id="delete_file_modal">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">confirm delete file</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        这是不可逆的！是否要删除该文件？
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">close</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal"
-                            onclick="delete_file();">delete!</button>
                     </div>
                 </div>
             </div>
@@ -236,7 +210,7 @@
             _global.file_password = 'test_password';
             _global.user = {
                 'name': 'develop',
-                'token': '1608990522921%tHlD70F672DZFrf+3QBZGa4fYD2K+zO6+Sbe6AWBlr8='
+                'token': '1608990522921&tHlD70F672DZFrf+3QBZGa4fYD2K+zO6+Sbe6AWBlr8='
             }
 
         }
@@ -249,7 +223,6 @@
             if (_global.file_password) {
                 url += 'password=' + _global.file_password;
             }
-
             var name = path.split('/').reverse()[0] == '' ? path.split('/').reverse()[1] : path.split('/').reverse()[0];
             $('#download_trigger').append("<a href=\"" + url + "\" download=\"" + name + "\" id=\"download_a_trigger\">trigger</a>");
             document.getElementById("download_a_trigger").click();
@@ -260,15 +233,13 @@
         function upload() {
             var file = $('#upload_file')[0].files[0];
 
-            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?folder=false&';
+            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?type=file&';
             if (_global.user) {
                 url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
             }
             if (_global.file_password) {
                 url += 'password=' + _global.file_password;
             }
-
-            url = url.replaceAll(' ', '+');
 
             var form_data = new FormData();
             form_data.append(file.name, file);
@@ -285,22 +256,18 @@
                     deal_with_error
                 }
             );
-            hash_change();
         }
 
-        function create_folder() {
+        function create_folder(){
             var name = $('#create_folder')[0].value;
 
-            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?folder=true&name=' + name + '&';
+            var url = '/u/' + (_global.folder_data.path[_global.folder_data.path.length - 1].path).substr(2) + '?type=folder&name='+name+'&';
             if (_global.user) {
                 url += 'user[name]=' + _global.user.name + '&user[token]=' + _global.user.token + '&';
             }
             if (_global.file_password) {
                 url += 'password=' + _global.file_password;
             }
-
-            url = url.replaceAll(' ', '+');
-
 
             $.ajax({
                 url: url,
@@ -314,23 +281,6 @@
                     deal_with_error
                 }
             );
-        }
-
-        function delete_file() {
-            var path = _global.delete_path.substr(1);
-
-            if (path[0] != '/') {
-                path = '/' + path;
-            }
-
-            console.log(path);
-
-            $.get('/r' + path, {
-                'user':
-                    (_global.user ? _global.user : null),
-                'password': (_global.file_password ? _global.file_password : null)
-            });
-            hash_change();
         }
 
         function load_main(path = null) {
@@ -369,13 +319,13 @@
                         if (i != '') {
                             _global.folder_data.path.push({
                                 'name': i,
-                                'path': _global.folder_data.path[_global.folder_data.path.length - 1].path + i + '/'
+                                'path': _global.folder_data.path[_global.folder_data.path.length - 1].path + i
                             });
                         }
                     }
 
                     for (i of _global.folder_data.file) {
-                        i.path = '#' + path + (path[path.length - 1] == '/' ? '' : '/') + i.name;
+                        i.path = '#' + path + i.name;
                     }
                     console.log(_global.folder_data);
                     Vue.set(_global.vue.main, 'folder_data', _global.folder_data);
@@ -429,12 +379,6 @@
             el: "#vue_main",
             data: {
                 'folder_data': null
-            },
-            methods: {
-                delete_file: function (path) {
-                    _global.delete_path = path;
-                    $("#delete_file_modal").modal("show");
-                }
             }
         });
 
